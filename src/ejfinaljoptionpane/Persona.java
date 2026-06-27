@@ -63,7 +63,7 @@ public class Persona implements Serializable {
 
     @Override
     public String toString() {
-        return identificador + ". "+ nombre + " " + apellidos + ". Edad: " + edad + ", localidad: " + localidad + ", telefono: " + telefono;
+        return "- "+ nombre + " " + apellidos + ". \n \t \t \t \t \t Edad: " + edad + ", localidad: " + localidad + "\n \t \t \t \t \t Teléfono: " + telefono;
     }
     
     

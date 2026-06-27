@@ -212,23 +212,37 @@ public class Agenda {
             for (Persona p: listado){
                 cadena+=contador+" "+p.nombre+" "+p.apellidos+" - "+p.telefono+"\n";
             }
-            eleccion=solicitarEntero("Selecciona entre los resultados obtenidos: \n"+cadena);
-            
-            boolean enRango=false;
-            
-            while (!enRango){
-                if (eleccion<1&&eleccion>listado.size()+1){
-                    eleccion=solicitarEntero(cadena+"\nSelecciona un número dentro de rango");
-                } else {
-                    enRango=true;
-                }
+            eleccion=solicitarEnteroOpcional("Selecciona entre los resultados obtenidos: \n"+cadena);
+            if (eleccion==-1){
+                return eleccion;
             }
-            return listado.get(eleccion-1).identificador;
+            else {
+               boolean enRango=false;
+            
+                while (!enRango){
+                    if (eleccion<1&&eleccion>listado.size()+1){
+                        eleccion=solicitarEntero(cadena+"\nSelecciona un número dentro de rango");
+                    } else {
+                        enRango=true;
+                    }
+                }
+                return listado.get(eleccion-1).identificador;
+            }            
+            
         }
         
     }
 
-    
+    //PIDE DATOS DE PERSONA QUE SE QUIERE MODIFICAR O ELIMINAR
+     private int flujoSeleccionPersonaExistente(String accion){
+         String nombre= this.solicitarStringNoNulo("Introduce el nombre de la persona que deseas "+accion);
+         String apellido= this.solicitarStringNoNulo("Introduce el apellidoo de la persona que deseas "+accion);
+         ArrayList<Persona> resultados=this.buscarPersonas(nombre, apellido);
+         int id=this.seleccionarPersona(resultados);
+         return id;
+    }
+     
+     
 //FUNCIONES AGENDA
     //AÑADIR PERSONA
     void aniadirPersona(){
@@ -248,12 +262,11 @@ public class Agenda {
         
     }
     
+   
+    
     //ELIMINAR PERSONA
-     void eliminarPersona(){     
-         String nombre= this.solicitarStringNoNulo("Introduce el nombre de la persona que deseas eliminar");
-         String apellido= this.solicitarStringNoNulo("Introduce el apellidoo de la persona que deseas eliminar");
-         ArrayList<Persona> resultados=this.buscarPersonas(nombre, apellido);
-         int id=this.seleccionarPersona(resultados);
+     void eliminarPersona(){  
+         int id=flujoSeleccionPersonaExistente("eliminar");
          if (id!=-1){
              if (!listaPersonas.contains(new Persona(id))){
              JOptionPane.showMessageDialog(null, "La persona no existe. No se ha modificado la agenda.");
@@ -267,12 +280,14 @@ public class Agenda {
      
      //MODIFICAR PERSONA
      void modificarPersona(){
-         String listado="";
+         /*String listado="";
          ArrayList<Persona> nombres= listaPersonas.stream().sorted((a,b)->a.getIdentificador()-b.getIdentificador()).collect(Collectors.toCollection(ArrayList::new));
          for (Persona p: nombres){
              listado+=p.getIdentificador()+". "+p.getNombre()+" "+p.getApellidos()+"\n";
          }
-         int id= solicitarEnteroOpcional(listado+"\n Introduce la persona que deseas modificar:");
+         */
+         
+         int id= flujoSeleccionPersonaExistente("modificar");
          if (id!=-1){
             if (!listaPersonas.contains(new Persona(id))){
                 JOptionPane.showMessageDialog(null, "La persona no existe. No se ha modificado la agenda.");
