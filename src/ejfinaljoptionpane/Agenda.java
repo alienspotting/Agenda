@@ -188,6 +188,15 @@ public class Agenda {
         JOptionPane.showMessageDialog(null, listar);
     }
     
+       //LISTAR PERSONAS SIMPLIFICADO
+    private String listarPersonasSimplificado(ArrayList<Persona> lista){
+        String listar="";
+        for (Persona p: lista){
+            listar+="- "+p.nombre+" "+p.apellidos+" - "+p.telefono+"\n";
+        }
+        return listar;
+    }
+    
     //BUSCAR PERSONAS
     private ArrayList<Persona> buscarPersonas(String nombre, String apellidos){
         ArrayList<Persona> resultado=new ArrayList<>();
@@ -235,8 +244,9 @@ public class Agenda {
 
     //PIDE DATOS DE PERSONA QUE SE QUIERE MODIFICAR O ELIMINAR
      private int flujoSeleccionPersonaExistente(String accion){
-         String nombre= this.solicitarStringNoNulo("Introduce el nombre de la persona que deseas "+accion);
-         String apellido= this.solicitarStringNoNulo("Introduce el apellidoo de la persona que deseas "+accion);
+         String listaActual=listarPersonasSimplificado(this.listaPersonas);
+         String nombre= this.solicitarStringNoNulo(listaActual+"\nIntroduce el nombre de la persona que deseas "+accion);
+         String apellido= this.solicitarStringNoNulo(listaActual+"\nIntroduce el apellidoo de la persona que deseas "+accion);
          ArrayList<Persona> resultados=this.buscarPersonas(nombre, apellido);
          int id=this.seleccionarPersona(resultados);
          return id;
