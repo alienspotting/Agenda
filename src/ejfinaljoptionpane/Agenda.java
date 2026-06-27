@@ -30,19 +30,23 @@ import javax.swing.JOptionPane;
  *      solicitarEnteroOpcional pide un Entero pero admite que se introduzca enter o se pulse cancelar. Se utiilza para "Modificar persona" -> Edad. También para que el usuario pueda pulsar cancelar en el menú y en las opciones de modificar y eliminary salga.
  *      listarPersonas recibe un ArrayList y muestra las personas
  *      listaVacia comprueba si hay algun elemento en la lista
+ *      buscarPersonas busca por nombre y apellido y devuelve un ArrayList con los resultados obtenidos
  *
  */     
 public class Agenda {
     
     ArrayList<Persona> listaPersonas;
+    int siguienteID;
     
     //CONSTRUCTORES
     public Agenda() {
         listaPersonas= new ArrayList<>();
+        siguienteID= 1;
     }
 
     public Agenda(ArrayList<Persona> listaPersonas) {
-        this.listaPersonas = listaPersonas;
+        this.listaPersonas = listaPersonas;        
+        siguienteID= listaPersonas.stream().mapToInt(x->x.identificador).max().getAsInt()+1;
     }
     
     
@@ -70,7 +74,7 @@ public class Agenda {
         
         while (!enRango){          
             
-            eleccion= solicitarEnteroOpcional("1. Añadir personas \n 2. Eliminar personas \n 3. Modificar personas \n 4. Mostrar ordenado por apellidos \n 5. Mostrar ordenado por edad \n 6. Salir \n Introduce tu elección: ");
+            eleccion= solicitarEnteroOpcional("siguiente id: "+siguienteID+"\n1. Añadir personas \n 2. Eliminar personas \n 3. Modificar personas \n 4. Mostrar ordenado por apellidos \n 5. Mostrar ordenado por edad \n 6. Salir \n Introduce tu elección: ");
             if (eleccion==-1){
                 eleccion=6;
                 enRango=true;
@@ -183,32 +187,73 @@ public class Agenda {
         }
         JOptionPane.showMessageDialog(null, listar);
     }
+    
+    //BUSCAR PERSONAS
+    private ArrayList<Persona> buscarPersonas(String nombre, String apellidos){
+        ArrayList<Persona> resultado=new ArrayList<>();
+        nombre=nombre.trim().toLowerCase();
+        apellidos=apellidos.trim().toLowerCase();
+        for (Persona p: this.listaPersonas){
+            if (p.nombre.toLowerCase().contains(nombre)&&p.apellidos.toLowerCase().contains(apellidos))
+                resultado.add(p);
+        }
+        return resultado;
+    }
+    
+    // SELECCIONAR PERSONA ENTRE LOS RESULTADOS OBTENIDOS
+    private int seleccionarPersona (ArrayList<Persona> listado){
+        String cadena= "";
+        int contador=1;
+        int eleccion=-1;
+        if (listado==null || listado.isEmpty()){
+            JOptionPane.showMessageDialog(null, "No se han obtenido resultados");
+            return -1;
+        } else {            
+            for (Persona p: listado){
+                cadena+=contador+" "+p.nombre+" "+p.apellidos+" - "+p.telefono+"\n";
+            }
+            eleccion=solicitarEntero("Selecciona entre los resultados obtenidos: \n"+cadena);
+            
+            boolean enRango=false;
+            
+            while (!enRango){
+                if (eleccion<1&&eleccion>listado.size()+1){
+                    eleccion=solicitarEntero(cadena+"\nSelecciona un número dentro de rango");
+                } else {
+                    enRango=true;
+                }
+            }
+            return listado.get(eleccion-1).identificador;
+        }
+        
+    }
 
     
 //FUNCIONES AGENDA
     //AÑADIR PERSONA
     void aniadirPersona(){
         
-        int id=solicitarEntero("Introduce el número de ID");
+        int id=this.siguienteID;        
         
+        String nombre= solicitarStringNoNulo("Introduce el nombre");
+        String apellidos=solicitarStringNoNulo("Introduce los apellidos"); 
+        int edad= solicitarEntero("Introduce la edad:");
+        String localidad= solicitarStringNoNulo("Introduce la localidad:"); 
+        String telefono= solicitarStringNoNulo("Introduce el teléfono");
 
-        if (listaPersonas.contains(new Persona(id))){
-            JOptionPane.showMessageDialog(null, "No se puede añadir. La persona ya existe.");
-        } else {
-            String nombre= solicitarStringNoNulo("Introduce el nombre");
-            String apellidos=solicitarStringNoNulo("Introduce los apellidos"); 
-            int edad= solicitarEntero("Introduce la edad:");
-            String localidad= solicitarStringNoNulo("Introduce la localidad:"); 
-            String telefono= solicitarStringNoNulo("Introduce el teléfono");
-
-            listaPersonas.add(new Persona(id, nombre, apellidos, edad, localidad, telefono));
-            JOptionPane.showMessageDialog(null, "Persona añadida correctamente");
-        }
+        listaPersonas.add(new Persona(id, nombre, apellidos, edad, localidad, telefono));
+        JOptionPane.showMessageDialog(null, "Persona añadida correctamente");
+        
+        this.siguienteID+=1;
+        
     }
     
     //ELIMINAR PERSONA
      void eliminarPersona(){     
-         int id= solicitarEnteroOpcional("Introduce el ID de la persona que deseas eliminar");
+         String nombre= this.solicitarStringNoNulo("Introduce el nombre de la persona que deseas eliminar");
+         String apellido= this.solicitarStringNoNulo("Introduce el apellidoo de la persona que deseas eliminar");
+         ArrayList<Persona> resultados=this.buscarPersonas(nombre, apellido);
+         int id=this.seleccionarPersona(resultados);
          if (id!=-1){
              if (!listaPersonas.contains(new Persona(id))){
              JOptionPane.showMessageDialog(null, "La persona no existe. No se ha modificado la agenda.");
