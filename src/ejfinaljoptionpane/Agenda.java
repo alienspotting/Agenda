@@ -192,7 +192,8 @@ public class Agenda {
     private String listarPersonasSimplificado(ArrayList<Persona> lista){
         String listar="";
         for (Persona p: lista){
-            listar+="- "+p.nombre+" "+p.apellidos+" - "+p.telefono+"\n";
+            listar+="- "+p.nombre+" "+
+                    p.apellidos+" - "+p.telefono+"\n";
         }
         return listar;
     }
@@ -200,12 +201,30 @@ public class Agenda {
     //BUSCAR PERSONAS
     private ArrayList<Persona> buscarPersonas(String nombre, String apellidos){
         ArrayList<Persona> resultado=new ArrayList<>();
-        nombre=nombre.trim().toLowerCase();
-        apellidos=apellidos.trim().toLowerCase();
-        for (Persona p: this.listaPersonas){
-            if (p.nombre.toLowerCase().contains(nombre)&&p.apellidos.toLowerCase().contains(apellidos))
-                resultado.add(p);
+        if (nombre!=null){            
+            nombre=nombre.trim().toLowerCase();
         }
+        if (apellidos!=null){            
+            apellidos=apellidos.trim().toLowerCase();
+        }
+        if (nombre !=null && !nombre.trim().equalsIgnoreCase("")&&apellidos!=null && !apellidos.trim().equalsIgnoreCase("")){
+            for (Persona p: this.listaPersonas){
+                if (p.nombre.toLowerCase().contains(nombre)&&p.apellidos.toLowerCase().contains(apellidos))
+                    resultado.add(p);
+            }
+         } else if ((nombre !=null && !nombre.trim().isEmpty())&&(apellidos==null || apellidos.trim().equalsIgnoreCase(""))){
+              for (Persona p: this.listaPersonas){
+                if (p.nombre.toLowerCase().contains(nombre))
+                    resultado.add(p);
+            } 
+         }else if ((nombre ==null || nombre.trim().isEmpty())&&( apellidos!=null && !apellidos.trim().isEmpty())){
+             for (Persona p: this.listaPersonas){
+                if (p.apellidos.toLowerCase().contains(apellidos))
+                    resultado.add(p);
+            } 
+         }
+             
+        
         return resultado;
     }
     
@@ -219,9 +238,10 @@ public class Agenda {
             return -1;
         } else {            
             for (Persona p: listado){
-                cadena+=contador+" "+p.nombre+" "+p.apellidos+" - "+p.telefono+"\n";
+                cadena+=contador+" - "+p.nombre+" "+p.apellidos+" - "+p.telefono+"\n";
+                contador++;
             }
-            eleccion=solicitarEnteroOpcional("Selecciona entre los resultados obtenidos: \n"+cadena);
+            eleccion=solicitarEnteroOpcional("Se han obtenido varias coincidencias. Selecciona el número de la lista de la persona que deseas seleccionar: \n"+cadena);
             if (eleccion==-1){
                 return eleccion;
             }
@@ -229,8 +249,11 @@ public class Agenda {
                boolean enRango=false;
             
                 while (!enRango){
-                    if (eleccion<1&&eleccion>listado.size()+1){
-                        eleccion=solicitarEntero(cadena+"\nSelecciona un número dentro de rango");
+                    if (eleccion<1||eleccion>listado.size()){
+                        eleccion=solicitarEnteroOpcional(cadena+"\nSelecciona un número dentro de rango");
+                        if (eleccion==-1){
+                            return eleccion;
+                        }
                     } else {
                         enRango=true;
                     }
@@ -245,11 +268,19 @@ public class Agenda {
     //PIDE DATOS DE PERSONA QUE SE QUIERE MODIFICAR O ELIMINAR
      private int flujoSeleccionPersonaExistente(String accion){
          String listaActual=listarPersonasSimplificado(this.listaPersonas);
-         String nombre= this.solicitarStringNoNulo(listaActual+"\nIntroduce el nombre de la persona que deseas "+accion);
-         String apellido= this.solicitarStringNoNulo(listaActual+"\nIntroduce el apellidoo de la persona que deseas "+accion);
-         ArrayList<Persona> resultados=this.buscarPersonas(nombre, apellido);
-         int id=this.seleccionarPersona(resultados);
-         return id;
+         /*String nombre= this.solicitarStringNoNulo();
+         String apellido= this.solicitarStringNoNulo(listaActual+"\nIntroduce el apellido de la persona que deseas "+accion);*/
+         String nombre= JOptionPane.showInputDialog(listaActual+"\nIntroduce el nombre de la persona que deseas "+accion);
+         String apellido= JOptionPane.showInputDialog(listaActual+"\nIntroduce el apellido de la persona que deseas "+accion);
+         
+         if ((nombre==null||nombre.trim().isEmpty())&&(apellido==null)||apellido.trim().isEmpty()){
+             return -1;
+         } else {
+             ArrayList<Persona> resultados=buscarPersonas(nombre, apellido);         
+            int id=this.seleccionarPersona(resultados);
+            return id;
+         }
+         
     }
      
      
