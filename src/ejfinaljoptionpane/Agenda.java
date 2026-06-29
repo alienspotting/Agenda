@@ -56,7 +56,7 @@ public class Agenda {
     
      //MENU
     
-    public void menu(){
+    /*public void menu(){
         int eleccion=0;
         while (eleccion!=6){
             eleccion= leerOpcionMenu();
@@ -168,10 +168,10 @@ public class Agenda {
             eleccion= JOptionPane.showInputDialog(mensaje);            
         }
         return eleccion;       
-    }
+    }*/
     
     // COMPROBAR LISTA VACIA
-    private boolean listaVacia(){
+    public boolean listaVacia(){
         if (listaPersonas.isEmpty()){
                 JOptionPane.showMessageDialog(null, "Todavía no hay personas en la agenda.");
                 return true;
@@ -179,6 +179,7 @@ public class Agenda {
             return false;
     }
     
+    /*
     //LISTAR PERSONAS
     private void listarPersonas(ArrayList<Persona> lista){
         String listar="";
@@ -197,37 +198,43 @@ public class Agenda {
         }
         return listar;
     }
-    
+    */
     //BUSCAR PERSONAS
-    private ArrayList<Persona> buscarPersonas(String nombre, String apellidos){
-        ArrayList<Persona> resultado=new ArrayList<>();
-        if (nombre!=null){            
-            nombre=nombre.trim().toLowerCase();
+    public ArrayList<Persona> buscarPersonas(String nombre, String apellidos){
+      ArrayList<Persona> resultado = new ArrayList<>();
+
+      boolean hayNombre = nombre != null && !nombre.trim().isEmpty();
+      boolean hayApellidos = apellidos != null && !apellidos.trim().isEmpty();
+      
+      if (hayNombre){
+          nombre= nombre.trim().toLowerCase();
+      }
+      
+      if (hayApellidos){
+          apellidos=apellidos.trim().toLowerCase();
+      }       
+       
+
+        for (Persona p : this.listaPersonas) {
+
+           if (hayNombre && !hayApellidos){
+               if (p.nombre.toLowerCase().contains(nombre)){
+                   resultado.add(p);
+               }
+           } else if (!hayNombre && hayApellidos){
+               if (p.apellidos.toLowerCase().contains(apellidos)){
+                   resultado.add(p);
+               }
+           } else if (hayNombre&&hayApellidos){
+               if (p.apellidos.toLowerCase().contains(apellidos)&&p.nombre.toLowerCase().contains(nombre)){
+                   resultado.add(p);
+               }
+           }
         }
-        if (apellidos!=null){            
-            apellidos=apellidos.trim().toLowerCase();
-        }
-        if (nombre !=null && !nombre.trim().equalsIgnoreCase("")&&apellidos!=null && !apellidos.trim().equalsIgnoreCase("")){
-            for (Persona p: this.listaPersonas){
-                if (p.nombre.toLowerCase().contains(nombre)&&p.apellidos.toLowerCase().contains(apellidos))
-                    resultado.add(p);
-            }
-         } else if ((nombre !=null && !nombre.trim().isEmpty())&&(apellidos==null || apellidos.trim().equalsIgnoreCase(""))){
-              for (Persona p: this.listaPersonas){
-                if (p.nombre.toLowerCase().contains(nombre))
-                    resultado.add(p);
-            } 
-         }else if ((nombre ==null || nombre.trim().isEmpty())&&( apellidos!=null && !apellidos.trim().isEmpty())){
-             for (Persona p: this.listaPersonas){
-                if (p.apellidos.toLowerCase().contains(apellidos))
-                    resultado.add(p);
-            } 
-         }
-             
-        
-        return resultado;
+
+        return resultado;    
     }
-    
+    /*
     // SELECCIONAR PERSONA ENTRE LOS RESULTADOS OBTENIDOS
     private int seleccionarPersona (ArrayList<Persona> listado){
         String cadena= "";
@@ -268,8 +275,7 @@ public class Agenda {
     //PIDE DATOS DE PERSONA QUE SE QUIERE MODIFICAR O ELIMINAR
      private int flujoSeleccionPersonaExistente(String accion){
          String listaActual=listarPersonasSimplificado(this.listaPersonas);
-         /*String nombre= this.solicitarStringNoNulo();
-         String apellido= this.solicitarStringNoNulo(listaActual+"\nIntroduce el apellido de la persona que deseas "+accion);*/
+         
          String nombre= JOptionPane.showInputDialog(listaActual+"\nIntroduce el nombre de la persona que deseas "+accion);
          String apellido= JOptionPane.showInputDialog(listaActual+"\nIntroduce el apellido de la persona que deseas "+accion);
          
@@ -282,90 +288,65 @@ public class Agenda {
          }
          
     }
-     
+     */
      
 //FUNCIONES AGENDA
     //AÑADIR PERSONA
-    void aniadirPersona(){
+    public boolean aniadirPersona(Persona p) {
+        boolean correcto=listaPersonas.add(p);        
         
-        int id=this.siguienteID;        
-        
-        String nombre= solicitarStringNoNulo("Introduce el nombre");
-        String apellidos=solicitarStringNoNulo("Introduce los apellidos"); 
-        int edad= solicitarEntero("Introduce la edad:");
-        String localidad= solicitarStringNoNulo("Introduce la localidad:"); 
-        String telefono= solicitarStringNoNulo("Introduce el teléfono");
-
-        listaPersonas.add(new Persona(id, nombre, apellidos, edad, localidad, telefono));
-        JOptionPane.showMessageDialog(null, "Persona añadida correctamente");
-        
-        this.siguienteID+=1;
-        
+        if (correcto){
+            siguienteID++;
+        }
+        return correcto;
     }
+    
     
    
     
     //ELIMINAR PERSONA
-     void eliminarPersona(){  
-         int id=flujoSeleccionPersonaExistente("eliminar");
-         if (id!=-1){
-             if (!listaPersonas.contains(new Persona(id))){
-             JOptionPane.showMessageDialog(null, "La persona no existe. No se ha modificado la agenda.");
-            }else {
-                    listaPersonas.remove(new Persona(id));
-                    JOptionPane.showMessageDialog(null, "Eliminada correctamente");
-            }   
-         }
-             
-     }
+    public boolean eliminarPersona(int id) {
+        return listaPersonas.removeIf(p -> p.getIdentificador() == id);
+    }
+    
      
      //MODIFICAR PERSONA
-     void modificarPersona(){
-         /*String listado="";
-         ArrayList<Persona> nombres= listaPersonas.stream().sorted((a,b)->a.getIdentificador()-b.getIdentificador()).collect(Collectors.toCollection(ArrayList::new));
-         for (Persona p: nombres){
-             listado+=p.getIdentificador()+". "+p.getNombre()+" "+p.getApellidos()+"\n";
-         }
-         */
-         
-         int id= flujoSeleccionPersonaExistente("modificar");
-         if (id!=-1){
-            if (!listaPersonas.contains(new Persona(id))){
-                JOptionPane.showMessageDialog(null, "La persona no existe. No se ha modificado la agenda.");
-            }else {
-                   int indice= listaPersonas.indexOf(new Persona(id));
-                   Persona personaModificada=listaPersonas.get(indice);
+    public boolean modificarPersona(int id, Persona nuevosDatos) {
 
-                   String nuevoNombre=JOptionPane.showInputDialog("Introduce el nuevo nombre o intro si no lo deseas modificar");
+        for (Persona p : listaPersonas) {
+            if (p.getIdentificador() == id) {
 
-                   if (nuevoNombre != null && !nuevoNombre.equals("")){
-                       personaModificada.setNombre(nuevoNombre);
-                   }
+                if (nuevosDatos.getNombre() != null)
+                    p.setNombre(nuevosDatos.getNombre());
 
-                   String nuevoApellidos=JOptionPane.showInputDialog("Introduce el nuevo apellido o intro si no lo deseas modificar");
-                   if (nuevoApellidos != null && !nuevoApellidos.equals("")){
-                       personaModificada.setApellidos(nuevoApellidos);
-                   }
+                if (nuevosDatos.getApellidos() != null)
+                    p.setApellidos(nuevosDatos.getApellidos());
 
-                   int nuevaEdad=solicitarEnteroOpcional("Introduce la nueva edad o intro si no lo deseas modificar");
-                   if (nuevaEdad>=0){
-                       personaModificada.setEdad(nuevaEdad);
-                   }
+                if (nuevosDatos.getEdad() > 0)
+                    p.setEdad(nuevosDatos.getEdad());
 
-                   String nuevaLocalidad=JOptionPane.showInputDialog("Introduce la nueva localidad o intro si no lo deseas modificar");
-                   if (nuevaLocalidad != null && !nuevaLocalidad.equals("")){
-                       personaModificada.setLocalidad(nuevaLocalidad);
-                   }
+                if (nuevosDatos.getLocalidad() != null)
+                    p.setLocalidad(nuevosDatos.getLocalidad());
 
-                   String nuevoTelefono=JOptionPane.showInputDialog("Introduce el nuevo teléfono o intro si no lo deseas modificar"); 
-                   if (nuevoTelefono != null && !nuevoTelefono.equals("")){
-                       personaModificada.setTelefono(nuevoTelefono);
-                   }
+                if (nuevosDatos.getTelefono() != null)
+                    p.setTelefono(nuevosDatos.getTelefono());
 
+                return true;
+            }
+        }
 
-            }       
-         }
-     }
+        return false;
+    }
+    
+    //BUSCAR PERSONA POR ID
+    public Persona buscarPorId(int id) {
+    for (Persona p : listaPersonas) {
+        if (p.getIdentificador() == id) {
+            return p;
+        }
+    }
+    return null;
+}
 
     public ArrayList<Persona> getListaPersonas() {
         return listaPersonas;
@@ -373,6 +354,14 @@ public class Agenda {
 
     public void setListaPersonas(ArrayList<Persona> listaPersonas) {
         this.listaPersonas = listaPersonas;
+    }
+
+    public int getSiguienteID() {
+        return siguienteID;
+    }
+
+    public void setSiguienteID(int siguienteID) {
+        this.siguienteID = siguienteID;
     }
      
      

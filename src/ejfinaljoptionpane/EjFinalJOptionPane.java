@@ -16,8 +16,8 @@ public class EjFinalJOptionPane {
      */
     public static void main(String[] args) {
           Agenda miAgenda= GestionArchivos.cargarAgenda();
-        
-       miAgenda.menu();
+          AgendaUI ui= new AgendaUI(miAgenda);        
+          ui.menu();
     }
     
 }
