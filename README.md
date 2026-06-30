@@ -35,14 +35,14 @@ src/
  └── Main.java
 
 ## Screenshots
-# Menú principal
+### Menú principal
 ![Menú principal](images/menu.png)
 
-# Búsqueda de contactos
+### Búsqueda de contactos
 ![Búsqueda](images/busquedaNombre.png)
 ![Búsqueda](images/busquedaNombre2.png)
 
-# Modificar contacto
+### Modificar contacto
 ![Modificar](images/ordenar-apellidos.png)
 
 
