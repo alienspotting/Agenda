@@ -11,27 +11,15 @@ import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 
 /**
- *
- *  Hacer un programa que nos permita 1. Añadir Personas a la agenda, 2. Eliminar Personas de la Agenda, 3. Modificar Personas de la Agenda, 4. Mostrar ordenados Por Apellidos, 5. Mostrar ordenados por edad. 
- * La información que se vaya añadiendo cuando se cierre el programa se guardará en un fichero, que se podrá recuperar cuando se vuelva a abrir la aplicación. 
- * Si una Persona ya está en la agenda, no se podrá añadir y el programa nos avisará. Lo mismo si intentamos eliminar una Persona que no exista.
- * 
- * ORGANIZACION:
- *  -Menu() se encarga de llamar al resto de metodos  de menú (leerOpcionMenu() y manejoMenu())
- *      -leerOpcionMenu pide la opcion y valida que esté en rango
- *      -manejoMenu es el switch - llama a las funciones según la eleccion
- * -Funciones de la agenda:
- *      -aniadirPersona: primero pide ID y valida si ya existe ese ID en la agenda. Si no existe, solicita el resto de datos y crea y añade a la persona a la agenda.
- *      -eliminarPersona elimina una persona
- *      -Modificar Persona modifica persona. Permite introducir nuevo dato o intro/cancelar para dejar el dato original
- * -Otras funciones a parte:
- *      solicitarEntero pide un entero y controla el error en caso de que se introduzca algo que no sea un entero. Se le pasa un mensaje para mostrar en el panel.
- *      solicitarStringNoNulo solicita String hasta que se introduzca un dato. Usado en aniadirPersona.  Se le pasa un mensaje para mostrar en el panel.
- *      solicitarEnteroOpcional pide un Entero pero admite que se introduzca enter o se pulse cancelar. Se utiilza para "Modificar persona" -> Edad. También para que el usuario pueda pulsar cancelar en el menú y en las opciones de modificar y eliminary salga.
- *      listarPersonas recibe un ArrayList y muestra las personas
- *      listaVacia comprueba si hay algun elemento en la lista
- *      buscarPersonas busca por nombre y apellido y devuelve un ArrayList con los resultados obtenidos
- *
+ * -ESTA CLASE CENTRALIZA: FUNCIONALIDADES CRUD de la AGENDA y métodos AUXILIARES que no requieren interacción del usuario
+ *-MÉTODOS AGENDA
+ *  -aniadirPersona() : recibe una persona y la añade en listaPersonas
+ *  -eliminarPersona(): recibe ID y elimina de listaPersonas la persona con ese ID
+ *  -modificarPersona(): recibe ID y nuevosDatos. Comprueba si los datos introducidos son o no null, 
+ *      y solo modifica aquellos campos en los que el usuario ha introducido información.
+ * -listaVacia comprueba si hay algun elemento en listaPersonas
+ * -buscarPersonas busca por nombre y apellido y devuelve un ArrayList con los resultados obtenidos
+ * -buscarPersonasPorID busca personas según ID y devuelve Persona que coincide con ese ID
  */     
 public class Agenda {
     
@@ -51,125 +39,8 @@ public class Agenda {
     
     
     
-    //MÉTODOS
-    
-    
-     //MENU
-    
-    /*public void menu(){
-        int eleccion=0;
-        while (eleccion!=6){
-            eleccion= leerOpcionMenu();
-            manejoMenu(eleccion);
-        }
-    }
-    
-    
-       // Solicitar y validar opcion 
-    public int leerOpcionMenu(){
-        
-        boolean enRango=false;
-        
-        int eleccion=0;
-        
-        while (!enRango){          
-            
-            eleccion= solicitarEnteroOpcional("siguiente id: "+siguienteID+"\n1. Añadir personas \n 2. Eliminar personas \n 3. Modificar personas \n 4. Mostrar ordenado por apellidos \n 5. Mostrar ordenado por edad \n 6. Salir \n Introduce tu elección: ");
-            if (eleccion==-1){
-                eleccion=6;
-                enRango=true;
-            }else if (eleccion>=1&&eleccion<=6){
-                   enRango=true;
-               } else{
-                 JOptionPane.showMessageDialog(null, "Debes introducir un número entre 1 y 6. Introduce de nuevo el número:");
-               }  
-        }      
-
-        return eleccion;        
-    }
-        
-    
-    
-    public void manejoMenu(int eleccion){
-        switch (eleccion){
-             case 1 ->  aniadirPersona();
-             case 2 -> { boolean vacia= listaVacia();
-                        if(!vacia)
-                            eliminarPersona();
-             }case 3 -> {boolean vacia= listaVacia();
-                        if(!vacia)
-                            modificarPersona();
-             }case 4 -> { boolean vacia= listaVacia();
-                        if(!vacia){                
-                            ArrayList<Persona> ordenadasApellidos= listaPersonas.stream().sorted((a,b)->a.getApellidos().compareToIgnoreCase(b.getApellidos())).collect(Collectors.toCollection(ArrayList::new));
-                             listarPersonas(ordenadasApellidos);
-                        }
-            }case 5 ->  { boolean vacia= listaVacia();
-                            if(!vacia){                                
-                             ArrayList<Persona> ordenadasEdad=  listaPersonas.stream().sorted((a,b)->a.getEdad()-b.getEdad()).collect(Collectors.toCollection(ArrayList::new));
-                             listarPersonas(ordenadasEdad);
-                             
-                            }        
-            }case 6 -> {GestionArchivos.guardarAgenda(this.listaPersonas);
-                        JOptionPane.showMessageDialog(null, "¡Adiós!"); 
-             }
-             
-        }
-       
-    }
-
-// SOLICITAR ENTERO
-    private int solicitarEntero(String mensaje){
-        boolean esValido=false;
-        int eleccion=0;
-        while (!esValido){
-            try{            
-                eleccion= Integer.parseInt(JOptionPane.showInputDialog(mensaje));
-                esValido=true;
-            } catch (InputMismatchException | NumberFormatException ex){                
-                JOptionPane.showMessageDialog(null, "La elección no es válida, debes introducir un número.");
-            }
-        }
-        return eleccion;       
-    }
-    
-    // SOLICITAR ENTERO OPCIONAL
-    private int solicitarEnteroOpcional(String mensaje) {
-        boolean esValido=false;        
-        int numeroValidado=0;
-
-    while (!esValido) {
-
-        String numero = JOptionPane.showInputDialog(mensaje);
-
-        if (numero == null || numero.equals("")) {
-            return -1;
-        }
-
-        try {
-            numeroValidado= Integer.parseInt(numero);
-            esValido=true;
-
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null,
-                    "Debes introducir un número válido");
-        }
-    }
-    
-    return numeroValidado;
-}
-    
-// SOLICITAR STRING Y COMPROBAR QUE NO ES NULL
-    private String solicitarStringNoNulo(String mensaje){
-        
-        String eleccion=JOptionPane.showInputDialog(mensaje);
-        while (eleccion==null||eleccion.equalsIgnoreCase("")){
-            JOptionPane.showMessageDialog(null, "Se debe introducir un dato");
-            eleccion= JOptionPane.showInputDialog(mensaje);            
-        }
-        return eleccion;       
-    }*/
-    
+    /*--------------------MÉTODOS AUXILIARES--------------------*/
+  
     // COMPROBAR LISTA VACIA
     public boolean listaVacia(){
         if (listaPersonas.isEmpty()){
@@ -179,27 +50,18 @@ public class Agenda {
             return false;
     }
     
-    /*
-    //LISTAR PERSONAS
-    private void listarPersonas(ArrayList<Persona> lista){
-        String listar="";
-        for (Persona p: lista){
-            listar+=p+"\n";
-        }
-        JOptionPane.showMessageDialog(null, listar);
-    }
-    
-       //LISTAR PERSONAS SIMPLIFICADO
-    private String listarPersonasSimplificado(ArrayList<Persona> lista){
-        String listar="";
-        for (Persona p: lista){
-            listar+="- "+p.nombre+" "+
-                    p.apellidos+" - "+p.telefono+"\n";
-        }
-        return listar;
-    }
-    */
+   
     //BUSCAR PERSONAS
+    /**
+        * Busca las personas que coinciden con el nombre y/o apellidos indicados.
+        * Si alguno de los parámetros es null o está vacío, ese criterio no se utiliza
+        * en la búsqueda.
+        *
+        * @param nombre Nombre a buscar.
+        * @param apellidos Apellidos a buscar.
+        * @return Lista de personas que cumplen los criterios de búsqueda.
+    */
+ 
     public ArrayList<Persona> buscarPersonas(String nombre, String apellidos){
       ArrayList<Persona> resultado = new ArrayList<>();
 
@@ -234,64 +96,26 @@ public class Agenda {
 
         return resultado;    
     }
-    /*
-    // SELECCIONAR PERSONA ENTRE LOS RESULTADOS OBTENIDOS
-    private int seleccionarPersona (ArrayList<Persona> listado){
-        String cadena= "";
-        int contador=1;
-        int eleccion=-1;
-        if (listado==null || listado.isEmpty()){
-            JOptionPane.showMessageDialog(null, "No se han obtenido resultados");
-            return -1;
-        } else {            
-            for (Persona p: listado){
-                cadena+=contador+" - "+p.nombre+" "+p.apellidos+" - "+p.telefono+"\n";
-                contador++;
-            }
-            eleccion=solicitarEnteroOpcional("Se han obtenido varias coincidencias. Selecciona el número de la lista de la persona que deseas seleccionar: \n"+cadena);
-            if (eleccion==-1){
-                return eleccion;
-            }
-            else {
-               boolean enRango=false;
-            
-                while (!enRango){
-                    if (eleccion<1||eleccion>listado.size()){
-                        eleccion=solicitarEnteroOpcional(cadena+"\nSelecciona un número dentro de rango");
-                        if (eleccion==-1){
-                            return eleccion;
-                        }
-                    } else {
-                        enRango=true;
-                    }
-                }
-                return listado.get(eleccion-1).identificador;
-            }            
-            
+    
+    //BUSCAR PERSONA POR ID
+    public Persona buscarPorId(int id) {
+    for (Persona p : listaPersonas) {
+        if (p.getIdentificador() == id) {
+            return p;
         }
-        
     }
-
-    //PIDE DATOS DE PERSONA QUE SE QUIERE MODIFICAR O ELIMINAR
-     private int flujoSeleccionPersonaExistente(String accion){
-         String listaActual=listarPersonasSimplificado(this.listaPersonas);
-         
-         String nombre= JOptionPane.showInputDialog(listaActual+"\nIntroduce el nombre de la persona que deseas "+accion);
-         String apellido= JOptionPane.showInputDialog(listaActual+"\nIntroduce el apellido de la persona que deseas "+accion);
-         
-         if ((nombre==null||nombre.trim().isEmpty())&&(apellido==null)||apellido.trim().isEmpty()){
-             return -1;
-         } else {
-             ArrayList<Persona> resultados=buscarPersonas(nombre, apellido);         
-            int id=this.seleccionarPersona(resultados);
-            return id;
-         }
-         
+    return null;
     }
-     */
      
-//FUNCIONES AGENDA
+    /*--------------------FUNCIONES AGENDA--------------------*/
     //AÑADIR PERSONA
+    /**
+        * Añade una nueva persona a la agenda.
+        *
+        * @param p Persona a la que añadir
+        * @return true si la persona se añadió correctamente.
+     */
+ 
     public boolean aniadirPersona(Persona p) {
         boolean correcto=listaPersonas.add(p);        
         
@@ -302,15 +126,28 @@ public class Agenda {
     }
     
     
-   
-    
     //ELIMINAR PERSONA
+     /**
+        * Elimina una persona de la agenda según su ID
+        *
+        * @param id int - ID de la persona que se desea eliminar
+        * @return true si la persona se eliminó correctamente.
+     */
+    
     public boolean eliminarPersona(int id) {
         return listaPersonas.removeIf(p -> p.getIdentificador() == id);
     }
     
      
      //MODIFICAR PERSONA
+    /**
+        * Modifica datos de persona ya existente en la agenda
+        * Revisa previamente si el campo es o no null. En caso de ser null, ese atributo no es modificado
+        * en la persona original.
+        * @param id int - ID de la persona que se desea modificar
+        * @param nuevosDatos Persona - nuevos datos que se desean introducir en la persona.
+        * @return true si la persona se modificó correctamente.
+     */
     public boolean modificarPersona(int id, Persona nuevosDatos) {
 
         for (Persona p : listaPersonas) {
@@ -338,15 +175,8 @@ public class Agenda {
         return false;
     }
     
-    //BUSCAR PERSONA POR ID
-    public Persona buscarPorId(int id) {
-    for (Persona p : listaPersonas) {
-        if (p.getIdentificador() == id) {
-            return p;
-        }
-    }
-    return null;
-}
+    
+      /*--------------------GETTERS AND SETTERS--------------------*/
 
     public ArrayList<Persona> getListaPersonas() {
         return listaPersonas;

@@ -10,8 +10,16 @@ import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 
 /**
+ * -ESTA CLASE CENTRALIZA: MÉTODOS MENÚ o que solicitan INPUT del usuario.
+ *   -Menu() se encarga de llamar al resto de metodos  de menú (leerOpcionMenu() y manejoMenu())
+ *      -leerOpcionMenu pide la opcion y valida que esté en rango
+ *      -manejoMenu es el switch - llama a las funciones según la eleccion
+ * -MÉTODOS AUXILIARES:
+ *  -solicitarEntero pide un entero y controla el error en caso de que se introduzca algo que no sea un entero. Se le pasa un mensaje para mostrar en el panel.
+ *  -solicitarStringNoNulo solicita String hasta que se introduzca un dato. Usado en aniadirPersona.  Se le pasa un mensaje para mostrar en el panel.
+ *  -solicitarEnteroOpcional pide un Entero pero admite que se introduzca enter o se pulse cancelar. Permite que el usuario pueda pulsar cancelar en el menú y en las opciones de modificar y eliminar y salga en lugar de obligarle a introducir datos.
+ *  -listarPersonas recibe un ArrayList y muestra las personas y sus datos
  *
- * @author mvisu
  */
 public class AgendaUI {
     
@@ -23,7 +31,10 @@ public class AgendaUI {
     
     
      //MENU
-    
+    /**
+        * Inicia el menú principal de la aplicación.
+        * Permanece en ejecución hasta que el usuario selecciona la opción de salir.
+    */
     public void menu(){
         int eleccion=0;
         while (eleccion!=6){
@@ -32,7 +43,11 @@ public class AgendaUI {
         }
     }
     
-     // Solicitar y validar opcion 
+    /**
+        * Solicita al usuario una opción del menú y valida que sea correcta.
+        *
+        * @return Opción seleccionada por el usuario.
+    */
     public int leerOpcionMenu(){
         
         boolean enRango=false;
@@ -41,7 +56,7 @@ public class AgendaUI {
         
         while (!enRango){          
             
-            eleccion= solicitarEnteroOpcional("siguiente id: "+agenda.siguienteID+"\n1. Añadir personas \n 2. Eliminar personas \n 3. Modificar personas \n 4. Mostrar ordenado por apellidos \n 5. Mostrar ordenado por edad \n 6. Salir \n Introduce tu elección: ");
+            eleccion= solicitarEnteroOpcional("1. Añadir personas \n 2. Eliminar personas \n 3. Modificar personas \n 4. Mostrar ordenado por apellidos \n 5. Mostrar ordenado por edad \n 6. Salir \n Introduce tu elección: ");
             if (eleccion==-1){
                 eleccion=6;
                 enRango=true;
@@ -55,7 +70,11 @@ public class AgendaUI {
         return eleccion;        
     }
     
-    
+    /**
+        * Ejecuta la acción correspondiente a la opción seleccionada en el menú.
+        *
+        * @param eleccion Opción elegida por el usuario.
+    */
      public void manejoMenu(int eleccion){
         switch (eleccion){
              case 1 ->  this.aniadirPersona();
@@ -101,6 +120,12 @@ public class AgendaUI {
     }
     
     // SOLICITAR ENTERO OPCIONAL
+    /**
+        * Solicita entero al usuario, pero permite que no se introduzca nada o que se introduzca un campo vacío.
+        * Esto se utiliza en otros métodos para permitir al usuario cancelar o pulsar intro en caso de no querer modificar nada.
+        * @param mensaje String - mensaje que se mostrará al usuario al solicitar el número
+        * @return el número introducido por el usuario o -1 si es null o vacío
+    */
     public int solicitarEnteroOpcional(String mensaje) {
         boolean esValido=false;        
         int numeroValidado=0;
@@ -157,6 +182,15 @@ public class AgendaUI {
     }
     
      // SELECCIONAR PERSONA ENTRE LOS RESULTADOS OBTENIDOS
+    /**
+        * Para búsqueda de personas para eliminar o modificar, muestra las coincidencias obtenidas del nombre y apellido
+        * introducidos por el usuario. De manera que si hay dos nombres iguales en la agenda, el usuario podrá elegir
+        * cuál borrar.
+        *
+        * @param listado ArrayList<Persona> - lista de los resultados obtenidos
+        * @return int - ID de la persona que se desea eliminar / modificar
+    */
+    
     private int seleccionarPersona (ArrayList<Persona> listado){
         String cadena= "";
         int contador=1;
@@ -169,7 +203,7 @@ public class AgendaUI {
                 cadena+=contador+" - "+p.nombre+" "+p.apellidos+" - "+p.telefono+"\n";
                 contador++;
             }
-            eleccion=solicitarEnteroOpcional("Se han obtenido varias coincidencias. Selecciona el número de la lista de la persona que deseas seleccionar: \n"+cadena);
+            eleccion=solicitarEnteroOpcional("Se han obtenido varias coincidencias.\nSelecciona el número de la lista de la persona que deseas seleccionar: \n"+cadena);
             if (eleccion==-1){
                 return eleccion;
             }
@@ -194,6 +228,12 @@ public class AgendaUI {
     }
 
     //PIDE DATOS DE PERSONA QUE SE QUIERE MODIFICAR O ELIMINAR
+    /**
+        * Solicita nombre y apellidos de persona para modificar o eliminar.
+        * En caso de que ambos datos estén vacíos, no busca.
+        * @param accion String que determina la acción desde la que se llama a este método
+        * @return id de la persona seleccionada por el usuario
+    */
      private int flujoSeleccionPersonaExistente(String accion){
          String listaActual=listarPersonasSimplificado(agenda.listaPersonas);
          
@@ -213,6 +253,9 @@ public class AgendaUI {
      
      // SOLICITUD DATOS PARA GESTION AGENDA
      //AÑADIR PERSONA
+    /**
+        * Solicita al usuario datos para añadir a la agenda y llama al método de Agenda para guardarla.        
+    */
      public void aniadirPersona(){
         
         int id=agenda.getSiguienteID();        
@@ -233,6 +276,10 @@ public class AgendaUI {
     }
      
      //ELIMINAR PERSONA
+    /**
+        * Gestiona el flujo de eliminación de una persona de la agenda,
+        * incluyendo la selección del contacto y la confirmación del resultado.
+    */
      public void eliminarPersona(){  
          int id=flujoSeleccionPersonaExistente("eliminar");
          if (id!=-1){
@@ -248,6 +295,14 @@ public class AgendaUI {
      }
      
      //MODIFICAR PERSONA
+     /**
+    * Gestiona el proceso de modificación de una persona en la agenda.
+    *
+    * Permite al usuario seleccionar un contacto existente y modificar sus datos.
+    * Los campos introducidos pueden dejarse vacíos para mantener el valor actual.
+    * Finalmente delega la actualización a la clase Agenda.
+    */
+     
       public void modificarPersona(){
                   
          int id= flujoSeleccionPersonaExistente("modificar");
