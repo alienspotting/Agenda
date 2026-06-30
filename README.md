@@ -27,12 +27,14 @@ Los contactos son guardados en un fichero binario, de manera queda almacenada en
 
 ## Estructura del proyecto
 
+```text
 src/
  ├── Agenda.java              // Lógica de negocio
  ├── AgendaUI.java            // Interfaz de usuario
  ├── Persona.java             // Modelo de datos
  ├── GestionArchivos.java     // Gestión de ficheros binarios
  └── Main.java
+```
 
 ## Screenshots
 ### Menú principal
